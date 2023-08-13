@@ -6,11 +6,11 @@ import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
+import org.javacord.api.interaction.SlashCommandOptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +25,7 @@ public class PlayCommand extends BotCommand {
         validateVoiceChannel(connectedVoiceChannel, interaction);
 
         ServerVoiceChannel voiceChannel = connectedVoiceChannel.get();
-
+        // TODO validar se já está conectado e só conectar se não estiver
         voiceChannel.connect()
                 .thenAccept(audioConnection -> playSong(interaction, voiceChannel, audioConnection))
                 .exceptionally(throwable -> {
@@ -50,7 +50,7 @@ public class PlayCommand extends BotCommand {
 
     @Override
     public List<SlashCommandOption> getOptions() {
-        return Collections.emptyList();
+        return List.of(SlashCommandOption.create(SlashCommandOptionType.STRING, "URL", "Link da música no YouTube", true));
     }
 
     @Override
@@ -78,12 +78,17 @@ public class PlayCommand extends BotCommand {
     }
 
     private void playSong(SlashCommandInteraction interaction, ServerVoiceChannel voiceChannel, AudioConnection audioConnection) {
+        final String url = interaction.getOptionByName("URL")
+                .orElseThrow()
+                .getStringValue()
+                .orElseThrow();
+
         interaction.createImmediateResponder()
-                .setContent(":notes: Tocando https://youtu.be/bMfvZmhqW0A")
+                .setContent(":notes: Tocando " + url)
                 .respond();
 
         new AudioPlayerWrapper()
-                .playFromYoutube("https://youtu.be/bMfvZmhqW0A", audioConnection, interaction.getApi());
+                .playFromYoutube(url, audioConnection, interaction.getApi());
 
     }
 }
