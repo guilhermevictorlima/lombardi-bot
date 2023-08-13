@@ -1,6 +1,7 @@
 package com.github.guilhermevictorlima.lombardi.api;
 
 import com.github.guilhermevictorlima.lombardi.api.commands.BotCommand;
+import com.github.guilhermevictorlima.lombardi.api.commands.CommandListener;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -25,9 +26,13 @@ public class LombardiBotConfiguration {
         final DiscordApi discordApi = authenticateApi();
         LOGGER.info("Discord API successfully authenticated!");
 
-        LOGGER.info("Creating slash commands and their listeners...");
+        LOGGER.info("Creating slash commands...");
         commands.forEach(command -> command.buildCommand(discordApi));
-        LOGGER.info("Slash commands and listeners successfully created!");
+        LOGGER.info("Slash commands successfully created!");
+
+        LOGGER.info("Creating command listener...");
+        discordApi.addSlashCommandCreateListener(new CommandListener(commands));
+        LOGGER.info("Command listener successfully created!");
 
         return discordApi;
     }
