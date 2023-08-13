@@ -1,5 +1,6 @@
 package com.github.guilhermevictorlima.lombardi.api.commands;
 
+import com.github.guilhermevictorlima.lombardi.api.wrapper.lavaplayer.AudioPlayerWrapper;
 import com.github.guilhermevictorlima.lombardi.exception.CouldNotExecuteCommandException;
 import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
@@ -78,7 +79,11 @@ public class PlayCommand extends BotCommand {
 
     private void playSong(SlashCommandInteraction interaction, ServerVoiceChannel voiceChannel, AudioConnection audioConnection) {
         interaction.createImmediateResponder()
-                .setContent("Entrando no canal de voz " + voiceChannel.getName())
+                .setContent(":notes: Tocando https://youtu.be/bMfvZmhqW0A")
                 .respond();
+
+        new AudioPlayerWrapper()
+                .playFromYoutube("https://youtu.be/bMfvZmhqW0A", audioConnection, interaction.getApi());
+
     }
 }
