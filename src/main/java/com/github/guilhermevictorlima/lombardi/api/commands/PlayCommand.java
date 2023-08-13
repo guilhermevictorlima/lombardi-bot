@@ -12,7 +12,7 @@ import java.util.List;
 public class PlayCommand extends BotCommand {
 
     @Override
-    protected void execute(SlashCommandInteraction interaction) {
+    public void execute(SlashCommandInteraction interaction) {
         interaction.createImmediateResponder()
                 .setContent("Teste")
                 .respond();
@@ -34,7 +34,7 @@ public class PlayCommand extends BotCommand {
     }
 
     @Override
-    protected boolean isSatisfiedBy(SlashCommandInteraction interaction) {
+    public boolean isSatisfiedBy(SlashCommandInteraction interaction) {
         return interaction.getCommandName().equals(getName());
     }
 }

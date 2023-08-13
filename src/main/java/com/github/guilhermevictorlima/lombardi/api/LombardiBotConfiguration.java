@@ -1,7 +1,7 @@
 package com.github.guilhermevictorlima.lombardi.api;
 
 import com.github.guilhermevictorlima.lombardi.api.commands.BotCommand;
-import com.github.guilhermevictorlima.lombardi.api.commands.CommandListener;
+import com.github.guilhermevictorlima.lombardi.api.commands.listener.CommandListener;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
