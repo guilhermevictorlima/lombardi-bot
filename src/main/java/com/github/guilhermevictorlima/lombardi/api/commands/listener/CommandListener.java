@@ -1,5 +1,6 @@
-package com.github.guilhermevictorlima.lombardi.api.commands;
+package com.github.guilhermevictorlima.lombardi.api.commands.listener;
 
+import com.github.guilhermevictorlima.lombardi.api.commands.BotCommand;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.listener.interaction.SlashCommandCreateListener;

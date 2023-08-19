@@ -9,11 +9,11 @@ import java.util.List;
 
 public abstract class BotCommand {
 
-    abstract protected void execute(SlashCommandInteraction interaction);
+    abstract public void execute(SlashCommandInteraction interaction);
+    abstract public boolean isSatisfiedBy(SlashCommandInteraction interaction);
     abstract protected String getName();
     abstract protected String getDescription();
     abstract protected List<SlashCommandOption> getOptions();
-    abstract protected boolean isSatisfiedBy(SlashCommandInteraction interaction);
 
     public void buildCommand(DiscordApi api) {
         SlashCommand.with(getName(), getDescription(), getOptions())
