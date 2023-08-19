@@ -40,7 +40,4 @@ public class PlayerManager {
         audioPlayerManager.loadItemOrdered(serverMusicManager, url, new LavaPlayerResultHandler(serverMusicManager));
     }
 
-    public AudioPlayerManager getAudioPlayerManager() {
-        return audioPlayerManager;
-    }
 }
