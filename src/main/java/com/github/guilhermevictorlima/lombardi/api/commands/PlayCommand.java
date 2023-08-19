@@ -36,7 +36,7 @@ public class PlayCommand extends BotCommand {
         }
 
         voiceChannel.getServer().getAudioConnection()
-                .ifPresentOrElse(audioConnection -> playSong(interaction, voiceChannel, audioConnection), () -> interaction.createImmediateResponder().setContent("Ocorreu um erro inesperado"));
+                .ifPresentOrElse(audioConnection -> playerManager.play(interaction, audioConnection), () -> interaction.createImmediateResponder().setContent("Ocorreu um erro inesperado"));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class PlayCommand extends BotCommand {
 
     @Override
     public List<SlashCommandOption> getOptions() {
-        return List.of(SlashCommandOption.create(SlashCommandOptionType.STRING, "URL", "Link da música no YouTube", true));
+        return List.of(SlashCommandOption.create(SlashCommandOptionType.STRING, "QUERY", "Link da música no YouTube", true));
     }
 
     @Override
@@ -86,22 +86,9 @@ public class PlayCommand extends BotCommand {
         }
     }
 
-    private void playSong(SlashCommandInteraction interaction, ServerVoiceChannel voiceChannel, AudioConnection audioConnection) {
-        final String url = interaction.getOptionByName("URL")
-                .orElseThrow()
-                .getStringValue()
-                .orElseThrow();
-
-        interaction.createImmediateResponder()
-                .setContent(":notes: Tocando " + url)
-                .respond();
-
-        playerManager.play(interaction.getApi(), audioConnection, url);
-    }
-
     private void playJoiningChannel(SlashCommandInteraction interaction, ServerVoiceChannel voiceChannel) {
         voiceChannel.connect()
-                .thenAccept(audioConnection -> playSong(interaction, voiceChannel, audioConnection))
+                .thenAccept(audioConnection -> playerManager.play(interaction, audioConnection))
                 .exceptionally(throwable -> {
                     interaction.createImmediateResponder()
                             .setContent(":x: Xiii deu ruim... Não consegui entrar no canal de voz " + voiceChannel.getName())
