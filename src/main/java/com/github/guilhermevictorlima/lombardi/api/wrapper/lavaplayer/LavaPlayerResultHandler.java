@@ -5,12 +5,15 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import org.javacord.api.interaction.SlashCommandInteraction;
-import org.javacord.api.interaction.SlashCommandInteractionOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.github.guilhermevictorlima.lombardi.utils.QuerySearchUtils.isUrl;
 import static java.lang.String.format;
 
 public class LavaPlayerResultHandler implements AudioLoadResultHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LavaPlayerResultHandler.class);
 
     private final ServerMusicManager serverMusicManager;
     private final SlashCommandInteraction interaction;
@@ -63,7 +66,11 @@ public class LavaPlayerResultHandler implements AudioLoadResultHandler {
 
     @Override
     public void loadFailed(FriendlyException e) {
-        // TODO avisar que ocorreu um erro ao carregar a faixa ou playlist e logar exception
+        LOGGER.error(e.toString());
+
+        interaction.createImmediateResponder()
+                .setContent(":x: Ocorreu algum problema ao carregar faixa ou playlist")
+                .respond();
     }
 
 }
