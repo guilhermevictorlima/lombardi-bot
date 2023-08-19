@@ -1,9 +1,10 @@
 package com.github.guilhermevictorlima.lombardi.api.commands;
 
-import com.github.guilhermevictorlima.lombardi.api.wrapper.lavaplayer.AudioPlayerWrapper;
+import com.github.guilhermevictorlima.lombardi.api.wrapper.lavaplayer.PlayerManager;
 import com.github.guilhermevictorlima.lombardi.exception.CouldNotExecuteCommandException;
 import org.javacord.api.audio.AudioConnection;
 import org.javacord.api.entity.channel.ServerVoiceChannel;
+import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.interaction.SlashCommandOption;
 import org.javacord.api.interaction.SlashCommandOptionType;
@@ -17,7 +18,11 @@ import java.util.Optional;
 @Service
 public class PlayCommand extends BotCommand {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlayCommand.class);
+    private final PlayerManager playerManager;
+
+    public PlayCommand(PlayerManager playerManager) {
+        this.playerManager = playerManager;
+    }
 
     @Override
     public void execute(SlashCommandInteraction interaction) {
@@ -25,17 +30,13 @@ public class PlayCommand extends BotCommand {
         validateVoiceChannel(connectedVoiceChannel, interaction);
 
         ServerVoiceChannel voiceChannel = connectedVoiceChannel.get();
-        // TODO validar se já está conectado e só conectar se não estiver
-        voiceChannel.connect()
-                .thenAccept(audioConnection -> playSong(interaction, voiceChannel, audioConnection))
-                .exceptionally(throwable -> {
-                    interaction.createImmediateResponder()
-                            .setContent(":x: Xiii deu ruim... Não consegui entrar no canal de voz " + voiceChannel.getName())
-                            .respond();
 
-                    throw new CouldNotExecuteCommandException(PlayCommand.class, throwable.toString());
-                })
-                .join();
+        if (!voiceChannel.isConnected(interaction.getApi().getYourself())) {
+            playJoiningChannel(interaction, voiceChannel);
+        }
+
+        voiceChannel.getServer().getAudioConnection()
+                .ifPresentOrElse(audioConnection -> playSong(interaction, voiceChannel, audioConnection), () -> interaction.createImmediateResponder().setContent("Ocorreu um erro inesperado"));
     }
 
     @Override
@@ -68,12 +69,20 @@ public class PlayCommand extends BotCommand {
         }
 
         ServerVoiceChannel voiceChannel = connectedVoiceChannel.get();
-        if (!voiceChannel.canYouConnect()) {
+        if (!voiceChannel.canYouConnect() || !voiceChannel.canYouSee()) {
             interaction.createImmediateResponder()
                     .setContent(":x: Xiii deu ruim... Não consigo entrar no canal de voz " + voiceChannel.getName())
                     .respond();
 
             throw new CouldNotExecuteCommandException(PlayCommand.class, "The bot cannot connect on voice channel.");
+        }
+
+        if (!voiceChannel.hasPermission(interaction.getApi().getYourself(), PermissionType.SPEAK)) {
+            interaction.createImmediateResponder()
+                    .setContent(":x: Não tenho permissão pra falar no canal de voz " + voiceChannel.getName())
+                    .respond();
+
+            throw new CouldNotExecuteCommandException(PlayCommand.class, "The bot is not allowed to speak on the voice channel.");
         }
     }
 
@@ -87,8 +96,19 @@ public class PlayCommand extends BotCommand {
                 .setContent(":notes: Tocando " + url)
                 .respond();
 
-        new AudioPlayerWrapper()
-                .playFromYoutube(url, audioConnection, interaction.getApi());
+        playerManager.play(interaction.getApi(), audioConnection, url);
+    }
 
+    private void playJoiningChannel(SlashCommandInteraction interaction, ServerVoiceChannel voiceChannel) {
+        voiceChannel.connect()
+                .thenAccept(audioConnection -> playSong(interaction, voiceChannel, audioConnection))
+                .exceptionally(throwable -> {
+                    interaction.createImmediateResponder()
+                            .setContent(":x: Xiii deu ruim... Não consegui entrar no canal de voz " + voiceChannel.getName())
+                            .respond();
+
+                    throw new CouldNotExecuteCommandException(PlayCommand.class, throwable.toString());
+                })
+                .join();
     }
 }

@@ -7,6 +7,7 @@ import org.javacord.api.interaction.SlashCommandOption;
 
 import java.util.List;
 
+// utilizar composição
 public abstract class BotCommand {
 
     abstract public void execute(SlashCommandInteraction interaction);
